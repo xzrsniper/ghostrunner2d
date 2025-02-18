@@ -15,14 +15,25 @@ const config = {
 };
 
 let player;
+let swipeStartX, swipeStartY;
 
 const game = new Phaser.Game(config);
 
 function preload() {
-    // Завантажуємо спрайт-лист персонажа
-    this.load.spritesheet('player', 'https://xzrsniper.github.io/ghostrunner2d/assets/cyber_ninja_spritesheet.png', { frameWidth: 160, frameHeight: 360 });
-    this.load.image('platform', 'assets/platform.png');
-    this.load.image('laser', 'assets/laser.png');
+    console.log("🔄 Завантаження спрайтів...");
+    
+    // Переконайся, що файл існує
+    this.load.spritesheet('player', 'https://xzrsniper.github.io/ghostrunner2d/assets/cyber_ninja_spritesheet.png', { 
+        frameWidth: 160, 
+        frameHeight: 360 
+    });
+
+    this.load.image('platform', 'https://xzrsniper.github.io/ghostrunner2d/assets/platform.png');
+    this.load.image('laser', 'https://xzrsniper.github.io/ghostrunner2d/assets/laser.png');
+
+    this.load.on('loaderror', function(file) {
+        console.error("❌ Помилка завантаження:", file.src);
+    });
 }
 
 function create() {
@@ -48,45 +59,45 @@ function create() {
     this.anims.create({ key: 'jump', frames: [{ key: 'player', frame: 3 }], frameRate: 10, repeat: -1 });
     this.anims.create({ key: 'attack', frames: [{ key: 'player', frame: 4 }], frameRate: 10, repeat: -1 });
 
-    // Сенсорне керування
-    this.input.on('pointerdown', startSwipe, this);
-    this.input.on('pointerup', endSwipe, this);
+    // Сенсорне керування (свайпи)
+    this.input.on('pointerdown', function(pointer) {
+        swipeStartX = pointer.x;
+        swipeStartY = pointer.y;
+    }, this);
+
+    this.input.on('pointerup', function(pointer) {
+        const diffX = pointer.x - swipeStartX;
+        const diffY = pointer.y - swipeStartY;
+
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            if (diffX > 0) {
+                player.setVelocityX(200);
+                player.play('run', true);
+            } else {
+                player.setVelocityX(-200);
+                player.play('run', true);
+            }
+        } else {
+            if (diffY < 0) {
+                player.setVelocityY(-350);
+                player.play('jump', true);
+            }
+        }
+    }, this);
 
     this.scale.on('resize', resizeGame, this);
 }
 
 function update() {
     if (player.body.touching.down) {
-        player.play('run', true);
-    }
-}
-
-function startSwipe(pointer) {
-    this.swipeStartX = pointer.x;
-    this.swipeStartY = pointer.y;
-}
-
-function endSwipe(pointer) {
-    const diffX = pointer.x - this.swipeStartX;
-    const diffY = pointer.y - this.swipeStartY;
-
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-        if (diffX > 0) {
-            player.setVelocityX(200);
-            player.play('run', true);
+        if (player.body.velocity.x === 0) {
+            player.play('idle', true);
         } else {
-            player.setVelocityX(-200);
             player.play('run', true);
-        }
-    } else {
-        if (diffY < 0) {
-            player.setVelocityY(-350);
-            player.play('jump', true);
         }
     }
 }
 
-// Оновлення масштабу при зміні вікна
 function resizeGame(gameSize) {
     let width = gameSize.width;
     let height = gameSize.height;
