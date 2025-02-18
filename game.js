@@ -19,9 +19,10 @@ let player;
 const game = new Phaser.Game(config);
 
 function preload() {
-    this.load.spritesheet('player', 'cyber_ninja_spritesheet.png', { frameWidth: 160, frameHeight: 360 });
-    this.load.image('platform', 'platform.png');
-    this.load.image('laser', 'laser.png');
+    // Завантажуємо спрайт-лист персонажа
+    this.load.spritesheet('player', 'assets/cyber_ninja_spritesheet.png', { frameWidth: 160, frameHeight: 360 });
+    this.load.image('platform', 'assets/platform.png');
+    this.load.image('laser', 'assets/laser.png');
 }
 
 function create() {
@@ -30,21 +31,24 @@ function create() {
 
     this.add.text(10, 10, 'Ghostrunner 2D', { fontSize: '20px', fill: '#fff' });
 
+    // Додаємо платформу
     const platforms = this.physics.add.staticGroup();
     platforms.create(this.scale.width / 2, this.scale.height - 20, 'platform')
         .setScale(this.scale.width / 400, 1)
         .refreshBody();
 
+    // Додаємо персонажа
     player = this.physics.add.sprite(100, this.scale.height - 100, 'player');
     player.setCollideWorldBounds(true);
-
     this.physics.add.collider(player, platforms);
 
+    // Анімації персонажа
     this.anims.create({ key: 'idle', frames: [{ key: 'player', frame: 0 }], frameRate: 10, repeat: -1 });
     this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 2 }), frameRate: 10, repeat: -1 });
     this.anims.create({ key: 'jump', frames: [{ key: 'player', frame: 3 }], frameRate: 10, repeat: -1 });
     this.anims.create({ key: 'attack', frames: [{ key: 'player', frame: 4 }], frameRate: 10, repeat: -1 });
 
+    // Сенсорне керування
     this.input.on('pointerdown', startSwipe, this);
     this.input.on('pointerup', endSwipe, this);
 
@@ -82,6 +86,7 @@ function endSwipe(pointer) {
     }
 }
 
+// Оновлення масштабу при зміні вікна
 function resizeGame(gameSize) {
     let width = gameSize.width;
     let height = gameSize.height;
@@ -90,6 +95,7 @@ function resizeGame(gameSize) {
     game.scale.refresh();
 }
 
+// Подія зміни розміру
 window.addEventListener('resize', () => {
     game.scale.resize(window.innerWidth, window.innerHeight);
     game.scale.refresh();
