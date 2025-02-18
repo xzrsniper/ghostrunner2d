@@ -1,8 +1,8 @@
 const config = {
     type: Phaser.AUTO,
     parent: 'game-container',
-    width: window.gameWidth || window.innerWidth,
-    height: window.gameHeight || window.innerHeight,
+    width: window.innerWidth,
+    height: window.innerHeight,
     physics: {
         default: 'arcade',
         arcade: { gravity: { y: 500 }, debug: false }
@@ -19,7 +19,7 @@ let player;
 const game = new Phaser.Game(config);
 
 function preload() {
-    this.load.spritesheet('player', 'player-sprite.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player', 'cyber_ninja_spritesheet.png', { frameWidth: 160, frameHeight: 360 });
     this.load.image('platform', 'platform.png');
     this.load.image('laser', 'laser.png');
 }
@@ -40,12 +40,10 @@ function create() {
 
     this.physics.add.collider(player, platforms);
 
-    this.anims.create({
-        key: 'run',
-        frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
-        frameRate: 10,
-        repeat: -1
-    });
+    this.anims.create({ key: 'idle', frames: [{ key: 'player', frame: 0 }], frameRate: 10, repeat: -1 });
+    this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 2 }), frameRate: 10, repeat: -1 });
+    this.anims.create({ key: 'jump', frames: [{ key: 'player', frame: 3 }], frameRate: 10, repeat: -1 });
+    this.anims.create({ key: 'attack', frames: [{ key: 'player', frame: 4 }], frameRate: 10, repeat: -1 });
 
     this.input.on('pointerdown', startSwipe, this);
     this.input.on('pointerup', endSwipe, this);
@@ -71,17 +69,19 @@ function endSwipe(pointer) {
     if (Math.abs(diffX) > Math.abs(diffY)) {
         if (diffX > 0) {
             player.setVelocityX(200);
+            player.play('run', true);
         } else {
             player.setVelocityX(-200);
+            player.play('run', true);
         }
     } else {
         if (diffY < 0) {
             player.setVelocityY(-350);
+            player.play('jump', true);
         }
     }
 }
 
-// Оновлення масштабу при зміні розміру вікна
 function resizeGame(gameSize) {
     let width = gameSize.width;
     let height = gameSize.height;
@@ -90,8 +90,7 @@ function resizeGame(gameSize) {
     game.scale.refresh();
 }
 
-// Подія зміни розміру
 window.addEventListener('resize', () => {
-    game.scale.resize(window.gameWidth || window.innerWidth, window.gameHeight || window.innerHeight);
+    game.scale.resize(window.innerWidth, window.innerHeight);
     game.scale.refresh();
 });
