@@ -20,7 +20,7 @@ const game = new Phaser.Game(config);
 
 function preload() {
     // Завантажуємо спрайт-лист персонажа
-    this.load.spritesheet('player', 'assets/cyber_ninja_spritesheet.png', { frameWidth: 160, frameHeight: 360 });
+    this.load.spritesheet('player', 'https://xzrsniper.github.io/ghostrunner2d/assets/cyber_ninja_spritesheet.png', { frameWidth: 160, frameHeight: 360 });
     this.load.image('platform', 'assets/platform.png');
     this.load.image('laser', 'assets/laser.png');
 }
