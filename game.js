@@ -8,13 +8,13 @@ const config = {
         arcade: { gravity: { y: 500 }, debug: false }
     },
     scale: {
-        mode: Phaser.Scale.RESIZE, // Автоматична адаптація
+        mode: Phaser.Scale.RESIZE, // Автоматичне підлаштування розміру
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     scene: { preload, create, update }
 };
 
-let player, cursors;
+let player;
 
 const game = new Phaser.Game(config);
 
@@ -25,9 +25,13 @@ function preload() {
 }
 
 function create() {
+    // Розширюємо Web App на весь екран у Telegram
+    let tg = window.Telegram.WebApp;
+    tg.expand(); 
+
     this.add.text(10, 10, 'Ghostrunner 2D', { fontSize: '20px', fill: '#fff' });
 
-    // Платформа адаптується до ширини екрану
+    // Платформи
     const platforms = this.physics.add.staticGroup();
     platforms.create(this.scale.width / 2, this.scale.height - 20, 'platform')
         .setScale(this.scale.width / 400, 1)
@@ -45,11 +49,11 @@ function create() {
         repeat: -1
     });
 
-    // Додаємо адаптацію під мобільні сенсори
+    // Сенсорне управління (свайпи)
     this.input.on('pointerdown', startSwipe, this);
     this.input.on('pointerup', endSwipe, this);
 
-    // Автоматичне оновлення розміру елементів
+    // Автоматичне оновлення розміру при зміні екрану
     this.scale.on('resize', resizeGame, this);
 }
 
@@ -81,11 +85,17 @@ function endSwipe(pointer) {
     }
 }
 
-// Функція зміни розміру гри при зміні екрану
+// Автоматичне підлаштування розміру гри при зміні вікна
 function resizeGame(gameSize) {
     let width = gameSize.width;
     let height = gameSize.height;
 
-    this.cameras.resize(width, height);
-    player.setPosition(width / 2, height - 100);
+    game.scale.resize(width, height);
+    game.scale.refresh();
 }
+
+// Додаємо подію зміни розміру для браузера
+window.addEventListener('resize', () => {
+    game.scale.resize(window.innerWidth, window.innerHeight);
+    game.scale.refresh();
+});
