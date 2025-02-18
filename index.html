@@ -5,10 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ghostrunner 2D</title>
     
-    <!-- Підключаємо Telegram Web App API -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        window.onload = function () {
+            let tg = window.Telegram.WebApp;
+            tg.expand();
 
-    <!-- Підключаємо Phaser.js -->
+            // Передаємо дані у гру
+            let gameUrl = "game.js";
+            let width = tg.viewportStableWidth || window.innerWidth;
+            let height = tg.viewportStableHeight || window.innerHeight;
+
+            console.log(`📱 Розмір екрану: ${width} x ${height}`);
+
+            // Передаємо дані у гру через змінні JS
+            window.gameWidth = width;
+            window.gameHeight = height;
+        };
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
 
     <style>
